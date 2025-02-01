@@ -1,6 +1,10 @@
 import { Readability } from "@mozilla/readability"
 import TurndownService from "turndown"
 
+
+
+
+
 export const extractArticleMarkdown: () => string = () => {
   // Use DOMParser to parse a cloned version of the document's HTML.
   const parser = new DOMParser()
