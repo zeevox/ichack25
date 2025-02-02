@@ -27,14 +27,15 @@ const anthropic = new Anthropic({
 
 async function analyzeBiasedLanguage(
   articleText: string
-): Promise<Array<OurResponse>> {
+): Promise<any> {
   const prompt = `
 Article text:
 ${articleText}
 
-Find words or phrases in this article which are biased or sensationalist
-Give short explanation why the phrase is biased or sensationalist
-Rewrite the word/phrase with synonym to be neutral without bias or sensationalism
+Find 10-20 words or short phrases in this article which are biased
+  for example using "hostages" and "prisoners" to refer to similar groups
+Give a short explanation why each word/phrase is biased
+Rewrite the word/phrase to be neutral without bias
 Ask a short question prompting the user to do one of the following:
 * consider if this would sound fair if applied to the other side
 * consider what emotions this wording is meant to evoke
@@ -43,11 +44,23 @@ Ask a short question prompting the user to do one of the following:
 * check if the claim is backed by evidence
 * check if this phrase omits important context
 
+Use the title of the article to get a small set of keywords i can use to search for similar articles about the same story from other news sources.
+Generate a url of this format
+https://news.google.com/search?q=[story keywords]
+
 {
   "name": "biased_phrases",
   "schema": {
     "type": "object",
     "properties": {
+      "url": {
+        "type": "string",
+        "description": "The Google News URL suggesting other articles to discover"
+      },
+      "stance": {
+        "type": "string",
+        "description": "In the context of the article, give a concise sentence describing the historical position the news source normally takes on the topic."
+      },
       "phrases": {
         "type": "array",
         "description": "A list of objects containing biased phrases and their analysis.",
@@ -56,7 +69,7 @@ Ask a short question prompting the user to do one of the following:
           "properties": {
             "quoted_phrase": {
               "type": "string",
-              "description": "The directly quoted phrase from the article text."
+              "description": "The verbatim directly quoted word/phrase from the article text. Include text case and exact characters used."
             },
             "bias_explanation": {
               "type": "string",
@@ -82,7 +95,9 @@ Ask a short question prompting the user to do one of the following:
       }
     },
     "required": [
-      "phrases"
+      "phrases",
+      "stance",
+      "url"
     ],
     "additionalProperties": false
   },
@@ -99,7 +114,7 @@ Please respond with only the JSON object with the provided schema, and no other 
     })
 
     // Parse the response as JSON
-    return JSON.parse(message.content[0]["text"])["phrases"]
+    return JSON.parse(message.content[0]["text"])
   } catch (error) {
     if (error instanceof Anthropic.APIError) {
       console.error(`API Error: ${error.message}`)
@@ -113,43 +128,63 @@ Please respond with only the JSON object with the provided schema, and no other 
 // Example usage:
 async function main() {
   try {
-    const biasedLanguageAnalysis = await analyzeBiasedLanguage(markdownContent)
+    const loadingContainer = document.createElement("div");
+    loadingContainer.classList.add("loading-container");
+
+    const loadingLogo = document.createElement("img");
+    loadingLogo.src = 'https://cdn-icons-png.flaticon.com/128/9554/9554972.png';
+    loadingLogo.style.width = "20px";
+    loadingLogo.style.height = "20px";
+    loadingContainer.appendChild(loadingLogo);
+
+    const loadingText = document.createElement("div");
+    loadingText.innerText = "Loading bias report...";
+    loadingContainer.appendChild(loadingText);
+
+    document.body.appendChild(loadingContainer);
+
+    const response = await analyzeBiasedLanguage(markdownContent)
+
+    const url = response["url"]
+    const stance = response["stance"]
+    loadingText.innerHTML = `${stance}<br><br><a style="text-decoration: underline" href="${url}" target="_blank">Read alternative perspectives</a>`
+
+    const biasedLanguageAnalysis = response["phrases"]
     console.log(biasedLanguageAnalysis)
 
-    /*
-    const biasedLanguageAnalysis = [
-      {
-        quoted_phrase:
-          "Hamas claimed that they had been killed by an Israeli air strike early on in the ensuing war",
-        bias_explanation:
-          "The phrasing implies Hamas's claim is unverified, casting doubt without providing conclusive evidence about the fate of the Bibas family.",
-        rephrased_phrase:
-          "The status of the Bibas family remains unconfirmed, with conflicting claims about their survival",
-        prompt_question:
-          "What evidence exists to substantiate or refute Hamas's claim about the Bibas family?"
-      },
-      {
-        quoted_phrase:
-          "Lines of armed fighters kept crowds at bay, while the men who were released were flanked by more armed and masked fighters",
-        bias_explanation:
-          "The language creates a menacing image of Hamas, emphasizing militarization and intimidation during the prisoner exchange.",
-        rephrased_phrase:
-          "Security personnel managed the prisoner release process at the handover site",
-        prompt_question:
-          "Would this description sound equally dramatic if used to describe security procedures by another organization?"
-      },
-      {
-        quoted_phrase:
-          "A majority of the prisoners were held on what Israel calls 'administrative detention' - what critics say is imprisonment without charge",
-        bias_explanation:
-          "The phrase introduces a subjective criticism without providing balanced context about legal procedures.",
-        rephrased_phrase:
-          "A majority of Palestinian prisoners were held under administrative detention, a legal mechanism that allows detention without traditional criminal charges",
-        prompt_question:
-          "What specific legal standards and international laws govern administrative detention?"
-      }
-    ]
-*/
+    // const biasedLanguageAnalysis = [
+    //   {
+    //     quoted_phrase:
+    //       "Hamas claimed that they had been killed by an Israeli air strike early on in the ensuing war",
+    //     bias_explanation:
+    //       "The phrasing implies Hamas's claim is unverified, casting doubt without providing conclusive evidence about the fate of the Bibas family.",
+    //     rephrased_phrase:
+    //       "The status of the Bibas family remains unconfirmed, with conflicting claims about their survival",
+    //     prompt_question:
+    //       "What evidence exists to substantiate or refute Hamas's claim about the Bibas family?"
+    //   },
+    //   {
+    //     quoted_phrase:
+    //       "Lines of armed fighters kept crowds at bay, while the men who were released were flanked by more armed and masked fighters",
+    //     bias_explanation:
+    //       "The language creates a menacing image of Hamas, emphasizing militarization and intimidation during the prisoner exchange.",
+    //     rephrased_phrase:
+    //       "Security personnel managed the prisoner release process at the handover site",
+    //     prompt_question:
+    //       "Would this description sound equally dramatic if used to describe security procedures by another organization?"
+    //   },
+    //   {
+    //     quoted_phrase:
+    //       "A majority of the prisoners were held on what Israel calls 'administrative detention' - what critics say is imprisonment without charge",
+    //     bias_explanation:
+    //       "The phrase introduces a subjective criticism without providing balanced context about legal procedures.",
+    //     rephrased_phrase:
+    //       "A majority of Palestinian prisoners were held under administrative detention, a legal mechanism that allows detention without traditional criminal charges",
+    //     prompt_question:
+    //       "What specific legal standards and international laws govern administrative detention?"
+    //   }
+    // ]
+
 
     const strings: Record<string, string> = {}
     for (const languageAnalysis of biasedLanguageAnalysis) {
@@ -159,6 +194,11 @@ async function main() {
     highlightPhrases(strings, document.body)
     const popup = document.createElement("div")
     popup.classList.add("bias-popup")
+    const logo = document.createElement("img");
+    logo.src = 'https://cdn-icons-png.flaticon.com/128/9554/9554972.png';
+    logo.style.width = "20px";
+    logo.style.height = "20px";
+    popup.appendChild(logo);
     const biasExplanation = document.createElement("div")
     popup.appendChild(biasExplanation)
     const rewritten = document.createElement("div")
@@ -182,9 +222,9 @@ async function main() {
           (e) => e.quoted_phrase == el.textContent
         )
         biasExplanation.innerHTML =
-          "<b>Potential bias:</b> " + info.bias_explanation
-        rewritten.innerHTML = "<b>Alternative:</b> " + info.rephrased_phrase
-        question.innerHTML = "<b>Food for thought:</b> " + info.prompt_question
+          "<b style='font-weight: 700 !important;'>Potential bias:</b> " + info.bias_explanation
+        rewritten.innerHTML = "<b style='font-weight: 700 !important;'>Alternative perspective:</b> " + info.rephrased_phrase
+        question.innerHTML = "<b style='font-weight: 700 !important;'>Food for thought:</b> " + info.prompt_question
         console.log("we appended important material")
       })
       el.addEventListener("mouseout", (event) => {
