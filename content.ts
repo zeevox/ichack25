@@ -138,7 +138,7 @@ async function main() {
     loadingContainer.appendChild(loadingLogo);
 
     const loadingText = document.createElement("div");
-    loadingText.innerText = "BiasShield: loading bias report...";
+    loadingText.innerText = "BiasShield loading report...";
     loadingContainer.appendChild(loadingText);
 
     document.body.appendChild(loadingContainer);
@@ -147,7 +147,7 @@ async function main() {
 
     const url = response["url"]
     const stance = response["stance"]
-    loadingText.innerHTML = `<br>${stance}<br><br><a style="text-decoration: underline" href="${url}" target="_blank">Read alternative perspectives</a>`
+    loadingText.innerHTML = `${stance}<br><br><a style="text-decoration: underline" href="${url}" target="_blank">Read alternative perspectives</a>`
 
     const biasedLanguageAnalysis = response["phrases"]
     console.log(biasedLanguageAnalysis)
