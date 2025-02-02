@@ -51,8 +51,26 @@ Please respond with only the JSON object, no other text.`
 async function main() {
   try {
     // const biasedLanguageAnalysis = await analyzeBiasedLanguage(markdownContent)
+    // console.log(biasedLanguageAnalysis)
     const biasedLanguageAnalysis = {
-      the: "bad word"
+      "shocking scenes":
+        "Sensationalist language that implies extreme drama without objective description",
+      nightmare:
+        "Emotionally charged word that suggests trauma without providing specific context",
+      "endured months":
+        "Biased phrasing that implies suffering without neutral reporting",
+      "narrowness of the graves":
+        "Emotionally provocative metaphorical language that introduces bias",
+      "deeply concerned":
+        "Vague, subjective language that implies emotional state without factual basis",
+      catastrophic:
+        "Sensationalist descriptor that exaggerates conditions without precise measurement",
+      "impossible for them to be in Gaza":
+        "Emotionally charged statement that presents a subjective perspective as objective fact",
+      "pure happiness":
+        "Subjective, sensationalist description of emotional state",
+      "bitter moment":
+        "Emotionally loaded phrase that introduces personal perspective into reporting"
     }
     console.log("Biased/Sensationalist Language Analysis:")
     for (const [phrase, explanation] of Object.entries(
@@ -61,13 +79,26 @@ async function main() {
       console.log(`\n"${phrase}":`, explanation)
     }
     highlightPhrases(biasedLanguageAnalysis, document.body)
+    const popup = document.createElement("div")
+    popup.classList.add("bias-popup")
+    popup.textContent = "information"
+    document.body.appendChild(popup)
+
     document.querySelectorAll(".highlight").forEach((el) => {
-      el.addEventListener("click", () => {
-        const popup = document.createElement("div")
-        popup.classList.add("bias-popup")
-        popup.textContent = "important material"
-        el.after(popup)
+      el.addEventListener("mouseover", (event) => {
+        // const popup = document.createElement("div")
+        // popup.classList.add("bias-popup")
+        // popup.textContent = "important material"
+        // el.after(popup)
+        const rect = el.getBoundingClientRect()
+        popup.style.left = `${rect.right + window.scrollX + 10}px`
+        popup.style.top = `${rect.top + window.scrollY}px`
+        popup.style.display = "block"
+        popup.innerHTML = biasedLanguageAnalysis[el.textContent]
         console.log("we appended important material")
+      })
+      el.addEventListener("mouseout", (event) => {
+        popup.style.display = "none"
       })
     })
   } catch (error) {
