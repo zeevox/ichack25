@@ -15,7 +15,15 @@ export const extractArticleMarkdown: () => string = () => {
   if (article) {
     // Convert the extracted article HTML to Markdown.
     const turndownService = new TurndownService()
-    return turndownService.turndown(article.content)
+    let markdownBody = turndownService.turndown(article.content)
+    return `
+    # ${article.title}
+    
+    From: ${article.siteName}
+    By: ${article.byline}
+    
+    ${markdownBody}
+    `
   } else {
     console.error("No article content was found by Readability.")
     return null

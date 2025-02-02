@@ -32,10 +32,10 @@ async function analyzeBiasedLanguage(
 Article text:
 ${articleText}
 
-Find phrases in this article which are biased or sensationalist
-Explain why the phrase is biased or sensationalist
-Rewrite the phrase to be neutral without bias or sensationalism
-Ask a question prompting the user to do one of the following:
+Find words or phrases in this article which are biased or sensationalist
+Give short explanation why the phrase is biased or sensationalist
+Rewrite the word/phrase with synonym to be neutral without bias or sensationalism
+Ask a short question prompting the user to do one of the following:
 * consider if this would sound fair if applied to the other side
 * consider what emotions this wording is meant to evoke
 * consider whether the language frames one side as good or bad
@@ -93,8 +93,8 @@ Please respond with only the JSON object with the provided schema, and no other 
 
   try {
     const message = await anthropic.messages.create({
-      model: "claude-3-5-haiku-20241022",
-      max_tokens: 1024,
+      model: "claude-3-5-sonnet-20241022",
+      max_tokens: 2048,
       messages: [{ role: "user", content: prompt }]
     })
 
@@ -113,9 +113,10 @@ Please respond with only the JSON object with the provided schema, and no other 
 // Example usage:
 async function main() {
   try {
-    // const biasedLanguageAnalysis = await analyzeBiasedLanguage(markdownContent)
-    // console.log(biasedLanguageAnalysis)
+    const biasedLanguageAnalysis = await analyzeBiasedLanguage(markdownContent)
+    console.log(biasedLanguageAnalysis)
 
+    /*
     const biasedLanguageAnalysis = [
       {
         quoted_phrase:
@@ -148,6 +149,7 @@ async function main() {
           "What specific legal standards and international laws govern administrative detention?"
       }
     ]
+*/
 
     const strings: Record<string, string> = {}
     for (const languageAnalysis of biasedLanguageAnalysis) {
@@ -175,16 +177,19 @@ async function main() {
         popup.style.left = `${rect.right + window.scrollX + 10}px`
         popup.style.top = `${rect.top + window.scrollY}px`
         popup.style.opacity = "1"
+        popup.style.zIndex = "100000000"
         const info = biasedLanguageAnalysis.find(
           (e) => e.quoted_phrase == el.textContent
         )
-        biasExplanation.innerHTML = "\u{1F4DD} " + info.bias_explanation
-        rewritten.innerText = "\u{1F504} " + info.rephrased_phrase
-        question.innerHTML = "\u{1F914} " + info.prompt_question
+        biasExplanation.innerHTML =
+          "<b>Potential bias:</b> " + info.bias_explanation
+        rewritten.innerHTML = "<b>Alternative:</b> " + info.rephrased_phrase
+        question.innerHTML = "<b>Food for thought:</b> " + info.prompt_question
         console.log("we appended important material")
       })
       el.addEventListener("mouseout", (event) => {
         popup.style.opacity = "0"
+        popup.style.zIndex = "-9999"
       })
     })
   } catch (error) {
