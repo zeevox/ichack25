@@ -152,40 +152,6 @@ async function main() {
     const biasedLanguageAnalysis = response["phrases"]
     console.log(biasedLanguageAnalysis)
 
-    // const biasedLanguageAnalysis = [
-    //   {
-    //     quoted_phrase:
-    //       "Hamas claimed that they had been killed by an Israeli air strike early on in the ensuing war",
-    //     bias_explanation:
-    //       "The phrasing implies Hamas's claim is unverified, casting doubt without providing conclusive evidence about the fate of the Bibas family.",
-    //     rephrased_phrase:
-    //       "The status of the Bibas family remains unconfirmed, with conflicting claims about their survival",
-    //     prompt_question:
-    //       "What evidence exists to substantiate or refute Hamas's claim about the Bibas family?"
-    //   },
-    //   {
-    //     quoted_phrase:
-    //       "Lines of armed fighters kept crowds at bay, while the men who were released were flanked by more armed and masked fighters",
-    //     bias_explanation:
-    //       "The language creates a menacing image of Hamas, emphasizing militarization and intimidation during the prisoner exchange.",
-    //     rephrased_phrase:
-    //       "Security personnel managed the prisoner release process at the handover site",
-    //     prompt_question:
-    //       "Would this description sound equally dramatic if used to describe security procedures by another organization?"
-    //   },
-    //   {
-    //     quoted_phrase:
-    //       "A majority of the prisoners were held on what Israel calls 'administrative detention' - what critics say is imprisonment without charge",
-    //     bias_explanation:
-    //       "The phrase introduces a subjective criticism without providing balanced context about legal procedures.",
-    //     rephrased_phrase:
-    //       "A majority of Palestinian prisoners were held under administrative detention, a legal mechanism that allows detention without traditional criminal charges",
-    //     prompt_question:
-    //       "What specific legal standards and international laws govern administrative detention?"
-    //   }
-    // ]
-
-
     const strings: Record<string, string> = {}
     for (const languageAnalysis of biasedLanguageAnalysis) {
       strings[languageAnalysis.quoted_phrase] = "blah"
@@ -209,10 +175,6 @@ async function main() {
 
     document.querySelectorAll(".highlight").forEach((el) => {
       el.addEventListener("mouseover", (event) => {
-        // const popup = document.createElement("div")
-        // popup.classList.add("bias-popup")
-        // popup.textContent = "important material"
-        // el.after(popup)
         const rect = el.getBoundingClientRect()
         popup.style.left = `${rect.right + window.scrollX + 10}px`
         popup.style.top = `${rect.top + window.scrollY}px`
