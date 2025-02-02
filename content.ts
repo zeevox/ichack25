@@ -21,7 +21,7 @@ console.log(markdownContent)
 
 const anthropic = new Anthropic({
   apiKey:
-    "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",
+    "",
   dangerouslyAllowBrowser: true
 })
 
@@ -138,7 +138,7 @@ async function main() {
     loadingContainer.appendChild(loadingLogo);
 
     const loadingText = document.createElement("div");
-    loadingText.innerText = "BiasShield loading report...";
+    loadingText.innerText = "BiasGuard loading report...";
     loadingContainer.appendChild(loadingText);
 
     document.body.appendChild(loadingContainer);
