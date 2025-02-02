@@ -3,10 +3,6 @@ import Anthropic from "@anthropic-ai/sdk"
 import { extractArticleMarkdown } from "~lib/extract"
 import { highlightPhrases } from "~lib/highlight"
 
-
-
-
-
 // Export config so Plasmo knows on which pages to run this script.
 export const config = {
   matches: ["<all_urls>"],
@@ -54,7 +50,10 @@ Please respond with only the JSON object, no other text.`
 // Example usage:
 async function main() {
   try {
-    const biasedLanguageAnalysis = await analyzeBiasedLanguage(markdownContent)
+    // const biasedLanguageAnalysis = await analyzeBiasedLanguage(markdownContent)
+    const biasedLanguageAnalysis = {
+      the: "bad word"
+    }
     console.log("Biased/Sensationalist Language Analysis:")
     for (const [phrase, explanation] of Object.entries(
       biasedLanguageAnalysis
@@ -62,6 +61,15 @@ async function main() {
       console.log(`\n"${phrase}":`, explanation)
     }
     highlightPhrases(biasedLanguageAnalysis, document.body)
+    document.querySelectorAll(".highlight").forEach((el) => {
+      el.addEventListener("click", () => {
+        const popup = document.createElement("div")
+        popup.classList.add("bias-popup")
+        popup.textContent = "important material"
+        el.after(popup)
+        console.log("we appended important material")
+      })
+    })
   } catch (error) {
     console.error("Failed to analyze article:", error)
   }
